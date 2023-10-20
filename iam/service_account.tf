@@ -5,13 +5,35 @@ resource "google_service_account" "service_account_one" {
   project      = var.project_id
 }
 
-
-resource "google_service_account_iam_binding" "admin-account-iam" {
+resource "google_service_account_key" "service_account_one_key" {
   service_account_id = google_service_account.service_account_one.name
-  role               = "roles/${google_project_iam_custom_role.my-sv-role.role_id}"
-
-  members = [
-    "allUsers",
-  ]
+  public_key_type    = "TYPE_X509_PEM_FILE"
 }
+
+## save the key to a file
+resource "local_sensitive_file" "service_account_one_key" {
+  content  = google_service_account_key.service_account_one_key.private_key
+  filename = "service_account_one_key.json"
+}
+
+
+
+
+resource "google_project_iam_binding" "bind_service_acc_roles" {
+    project = var.project_id
+     for_each = toset([
+     "roles/storage.admin",
+     "roles/compute.admin",
+     "roles/iam.serviceAccountUser",
+     "roles/container.admin",
+     "roles/artifactregistry.admin",
+     "projects/${var.project_id}/roles/${google_project_iam_custom_role.my-sv-role.role_id}"
+   ])
+   role     = each.value
+    members = ["serviceAccount:${google_service_account.service_account_one.email}"]
+
+    depends_on = [ google_project_iam_custom_role.my-sv-role , google_service_account.service_account_one ]
+}
+
+
 

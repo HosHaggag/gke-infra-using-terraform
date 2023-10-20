@@ -1,32 +1,32 @@
 
-
-
+module "iam" {
+    source = "./iam"
+    project_id = var.project_id
+  
+}
 
 module "network" {
     source = "./network"
-    managment-region = "us-central1"
-    workload-region = "us-east1"
+    managment-region = var.managment-region
+    workload-region = var.workload-region
     management-subnet = "10.1.0.0/29"
     workload-subnet = "192.168.10.0/24"
     project_id = var.project_id
-    service_account = var.tf_service_account
+    service_account = module.iam.service_account_one
 }
 
-resource "google_compute_instance" "vm_instance" {
-  name         = "terraform-instance"
-  machine_type = "f1-micro"
+module "compute" {
+    project_id = var.project_id
+    service_account = module.iam.service_account_one
+    management-subnet = module.network.managment_subnet
+    workload-subnet = module.network.workload_subnet
+    managment-region = var.managment-region
+    workload-region = var.workload-region
+    main_vpc = module.network.main_vpc
+    source = "./compute"
 
-  boot_disk {
-    initialize_params {
-      image = "debian-cloud/debian-10"
-    }
-  }
-
-  network_interface {
-    # A default network is created for all GCP projects
-    network = module.network.main_vpc
-    subnetwork = module.network.managment_subnet
-    access_config {
-    }
-  }
+    depends_on = [module.network , module.iam ]
 }
+
+
+
