@@ -15,11 +15,39 @@ sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 sudo usermod -aG docker $USER
 
-## install git
-
-sudo apt-get install git
 
 ## setup project folder
+
+
+## install kubernates right
+
+sudo apt-get update && sudo apt-get install -y apt-transport-https gnupg2 curl
+
+sudo snap remove google-cloud-cli
+
+
+curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-451.0.1-linux-x86_64.tar.gz
+
+tar zxvf google-cloud-cli-451.0.1-linux-x86_64.tar.gz
+
+./google-cloud-sdk/install.sh
+
+source ~/.bashrc
+
+gcloud components install kubectl --quiet
+
+gcloud container clusters get-credentials workload-cluster \
+    --region=us-east1 \
+    --project=gcp-iti-401020
+
+gcloud config set project gcp-iti-401020
+
+gcloud config set compute/zone us-central1-a
+
+
+
+
+
 
 git clone https://github.com/HosHaggag/simple-node-app.git
 
@@ -27,9 +55,59 @@ git clone https://github.com/HosHaggag/simple-node-app.git
 
 cd simple-node-app
 
-docker build -t simple-node-app .
+gcloud auth print-access-token | sudo docker login -u oauth2accesstoken --password-stdin  us-central1-docker.pkg.dev
+
+sudo docker build -t nodejs-app .
+
+
+sudo docker build -t mongodb .
+
+
 
 ## tag docker image
 
-docker tag simple-node-app hosamhaggag/simple-node-app
+sudo docker tag simple-node-app us-central1-docker.pkg.dev/gcp-iti-401020/my-nodejs-repo/simple-node-app:1.0.0
+
+
+sudo docker push us-central1-docker.pkg.dev/gcp-iti-401020/my-nodejs-repo/simple-node-app:1.0.0
+
+
+
+
+
+kubectl exec -it pod/mongo-0 mongosh
+
+db.createUser({user: "node-admin", pwd: "admin", roles: ["readWrite"]})
+
+
+
+db.auth("admin", "admin")
+
+db.createCollection("visits")
+
+
+db.createUser(
+         {
+           user: "admin",
+           pwd: "password",
+           roles: [
+             { role: "readWrite", db: "test" }
+           ]
+         }
+       );
+       
+
+
+
+rs.initiate(
+   {
+      _id: "rs0",
+      version: 1,
+      members: [
+         { _id: 0, host : "mongo-0.mongo.default.svc.cluster.local:27017" },
+         { _id: 1, host : "mongo-1.mongo.default.svc.cluster.local:27017" },
+         { _id: 2, host : "mongo-2.mongo.default.svc.cluster.local:27017" }
+      ]
+   }
+)
 

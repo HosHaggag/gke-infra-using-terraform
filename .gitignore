@@ -2,9 +2,9 @@
 
 # git ignore terraform modules
 
-/.terraform/*
+terraform/.terraform/*
 
-.terraform.lock.hcl
+terraform/.terraform.lock.hcl
 
-service_account_one_key.json
+compute/service_account_one_key.json
  

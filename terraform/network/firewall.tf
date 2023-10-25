@@ -37,7 +37,7 @@ resource "google_compute_firewall" "workload-firewall-Ingress" {
   network = google_compute_network.vpc_network.name
   allow {
     protocol = "tcp"
-    ports    = ["22"]
+    ports    = ["22" , "443"]
   }
   source_ranges = [
     google_compute_subnetwork.managment_subnet.ip_cidr_range,

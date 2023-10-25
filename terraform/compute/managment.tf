@@ -3,7 +3,12 @@ resource "google_compute_instance" "managment_instance" {
   machine_type = "e2-small"
   zone         = "${var.managment-region}-a"
 
-  metadata_startup_script = "${file("startup.sh")}}"
+
+
+
+  metadata = {
+    startup-script = file("./startup.sh")
+  }
   
   service_account {
     email  = var.service_account
@@ -25,6 +30,8 @@ resource "google_compute_instance" "managment_instance" {
     subnetwork = var.management-subnet
    
   }
+
+  depends_on = [ google_artifact_registry_repository.nodejs-repo ]
 
   
 

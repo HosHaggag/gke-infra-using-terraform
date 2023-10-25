@@ -42,3 +42,10 @@ variable "workload-region" {
 
 }
 
+
+
+
+
+
+
+

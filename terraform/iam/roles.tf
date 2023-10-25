@@ -7,5 +7,6 @@ resource "google_project_iam_custom_role" "my-sv-role" {
     "compute.instances.delete" ,
     "compute.instances.get" ,
     "compute.instances.list" ,
+    "artifactregistry.repositories.uploadArtifacts"
     ]
 }
