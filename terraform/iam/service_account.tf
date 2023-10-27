@@ -25,7 +25,6 @@ resource "google_project_iam_binding" "bind_service_acc_roles" {
      "roles/storage.admin",
      "roles/compute.admin",
      "roles/iam.serviceAccountUser",
-     "roles/container.admin",
      "roles/artifactregistry.admin",
      "projects/${var.project_id}/roles/${google_project_iam_custom_role.my-sv-role.role_id}"
    ])

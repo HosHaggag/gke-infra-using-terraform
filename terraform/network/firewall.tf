@@ -14,23 +14,6 @@ resource "google_compute_firewall" "managment-firewall-Ingress" {
 }
 
 
-resource "google_compute_firewall" "managment-firewall-Egress" {
-  name    = "managment-firewall-egress"
-  network = google_compute_network.vpc_network.name
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-  destination_ranges = [
-    "${google_compute_subnetwork.workload_subnet.ip_cidr_range}", # ip range of workload subnet
-    "199.36.153.4/30",                                            # ip ranges of artifact registry
-    "199.36.153.8/30",
-  ]
-  target_service_accounts = ["${var.service_account}"]
-  direction               = "EGRESS"
-
-  depends_on = [google_compute_subnetwork.managment_subnet, google_compute_subnetwork.workload_subnet]
-}
 
 resource "google_compute_firewall" "workload-firewall-Ingress" {
   name    = "workload-firewall-ingress"
